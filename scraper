@@ -1,7 +1,10 @@
+import pandas as pd # import pandas for dataframes
+import requests
+from bs4 import BeautifulSoup
+import locale
+from datetime import datetime
 def df_from_url(url):
-    import requests
-    from bs4 import BeautifulSoup
-
+  
 #why use headers? identifies application making the call... avoids issues with different website/html providers
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36'}
 
@@ -13,11 +16,14 @@ def df_from_url(url):
 
 
     soup = BeautifulSoup(response.content, features = 'lxml') #loads scraped html to BeautifulSoup
-
-    paging = soup.find_all("a", {'data-hook':'see-all-reviews-link-foot'})
-    paging_link = paging[0].get('href')
-    domain = 'https://www.amazon.com'
-    paging_link = str(domain) + str(paging_link)
+    try:
+        paging = soup.find_all("a", {'data-hook':'see-all-reviews-link-foot'})
+        paging_link = paging[0].get('href')
+        domain = 'https://www.amazon.com'
+        paging_link = str(domain) + str(paging_link)
+    except:
+        paging_link = url
+        pass
 
 
 # Create variable with the URL for the first page of the "see all reviews" site.
@@ -27,8 +33,7 @@ def df_from_url(url):
     response_page1 = requests.get(url_page1, headers = headers) # this gets ALL the html code of the website as is.
     soup_page1 = BeautifulSoup(response_page1.content, features = 'lxml') #loads scraped html to BeautifulSoup
 
-    import locale
-
+   
 # We can observe the number of reviews for an item in the bottom left... we can identify it by...
 # We are going to use the url of page1, also soup_page1
     numrev = soup_page1.find_all("span", {'data-hook':'cr-filter-info-review-count'})
@@ -42,14 +47,15 @@ def df_from_url(url):
     locale.setlocale( locale.LC_ALL, 'en_US.UTF-8' ) 
     substring = locale.atof(substring)
 
-    pages_total = round(substring/10)
+    pages_total = round(substring/10)-2
 
-    import pandas as pd # import pandas for dataframes
+    
     urls_list = []
-    url_pagei = paging_link
+    url_pagei = url_page1
     all_reviews = pd.DataFrame()
     domain = 'https://www.amazon.com'
-    for i in range(min(pages_total-2,490)):
+    
+    for i in range(min(pages_total,490)):
         response_pagei = requests.get(url_pagei, headers = headers)
         soup_pagei = BeautifulSoup(response_pagei.content, features = 'lxml')
         paging_pagei = soup_pagei.find_all("li", {'class':'a-last'})
@@ -57,12 +63,17 @@ def df_from_url(url):
         paging_linki = str(domain) + str(paging_linki)
     
         page_reviews = soup_pagei.find_all("div", {'data-hook':'review'}) # create soup of first page
-        page_reviews_df = []
-        for i in range(10):
+        page_reviews_df = pd.DataFrame()
+        for i in (0,1,2,3,4,5,6,7,8,9):
             page_reviewsi = page_reviews[i]
             name = page_reviewsi.find_all("span", {'class':'a-profile-name'})[0].get_text()
             date = page_reviewsi.find_all("span", {'data-hook':'review-date'})[0].get_text()
+            date = datetime.strptime(str(date), "%B %d, %Y")
             stars = page_reviewsi.find_all("a", {'class':'a-link-normal'})[0].get_text()
+            try:
+                stars = float(str(stars)[0])
+            except:
+                pass
             titlerev = page_reviewsi.find_all("a", {'data-hook':'review-title'})[0].get_text(strip=True)
             review_body = page_reviewsi.find_all("span", {'data-hook':'review-body'})[0].get_text(strip=True)
             row_df = pd.DataFrame({'name':[name],
