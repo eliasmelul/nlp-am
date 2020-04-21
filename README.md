@@ -1,4 +1,4 @@
-# nlp-am
+# Word on the Amazon
 
 This repository will hold some of the Word of the Amazon code that I do not mind sharing.
 The purpose behind this project is to create a website that analyzes all reviews of a given specific product from Amazon.com. 
@@ -6,6 +6,8 @@ The purpose behind this project is to create a website that analyzes all reviews
 **What data will be used?**
 
 The data will be dependent on the specific product the user wants to analyze. The general format the of data will be the scraped reviews for a specific product including the following for each review: name, date, stars, title, review_body. <a href='https://github.com/eliasmelul/nlp-am/blob/master/Functions%20Scraper.ipynb'>Click here</a> to check out the notebook.
+
+**_UPDATE_**: Due to issues with Amazon blocking my IP, there exists a private notebook that uses IP rotation to scrap the data. Nonetheless, for this project, I found <a href='https://nijianmo.github.io/amazon/index.html'>this</a> dataset to prevent scraping as much and focus more on the analytics.
 
 **How is the analysis done?**
 
