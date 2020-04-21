@@ -3,6 +3,9 @@
 This repository will hold some of the Word of the Amazon code that I do not mind sharing.
 The purpose behind this project is to create a website that analyzes all reviews of a given specific product from Amazon.com. 
 
+What data will be used?
+The data will be dependent on the specific product the user wants to analyze. The general format the of data will be the scraped reviews for a specific product including the following for each review: name, date, stars, title, review_body.
+
 How is the analysis done?
 
 The analysis will leverage NLP techiniques, including Topic Modeling, Sentiment Analysis, Text Classification and Text Generation.
